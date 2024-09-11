@@ -1,0 +1,30 @@
+# Ignore the .vs folder
+.vs/
+
+# Ignore build output directories
+bin/
+obj/
+
+# Ignore user-specific files
+*.user
+*.suo
+*.sln.docstates
+
+# Ignore temporary files
+*.tmp
+*.log
+
+# Ignore NuGet packages
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+# Rider IDE
+.idea/
+
+# JetBrains Rider
+.idea/
+
+# Visual Studio Code
+.vscode/

@@ -23,7 +23,7 @@ namespace UserAuthJwt.Api.Controllers
         }
 
         [HttpGet("users")]
-        public async Task<IActionResult> GetContacts()
+        public async Task<IActionResult> GetUsers()
         {
             try
             {
@@ -79,6 +79,19 @@ namespace UserAuthJwt.Api.Controllers
             }
         }
 
+        [HttpDelete("delete/{userId}")]
+        public async Task<IActionResult> DeleteUser(int userId)
+        {
+            try
+            {
+                await _userService.DeleteUser(userId);
+                return Ok(new { message = "User and associated contact deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
     }
 }

@@ -12,6 +12,7 @@ namespace UserAuthJwt.Infrastructure.Services
     {
         Task<User> Authenticate(string username, string password);
         Task<UserDto> Register(RegisterModel model);
+        Task DeleteUser(int userId);
         Task<IEnumerable<ContactModel>> GetAllUsers();
     }
     public class UserService : IUserService
@@ -83,21 +84,23 @@ namespace UserAuthJwt.Infrastructure.Services
 
         public async Task<IEnumerable<ContactModel>> GetAllUsers()
         {
-            var q = await (from o in _context.Contacts
-                           join o1 in _context.Users on o.Id equals o1.ContactId into o1Default
+            var q = await (from o in _context.Users
+                           join o1 in _context.Contacts on o.ContactId equals o1.Id into o1Default
                            from o1 in o1Default.DefaultIfEmpty()
-                           join o2 in _context.Roles on o1.RoleId equals o2.Id into o2Default
+                           join o2 in _context.Roles on o.RoleId equals o2.Id into o2Default
                            from o2 in o2Default.DefaultIfEmpty()
 
                            select new ContactModel
                            {
                                Id = o.Id,
-                               FirstName = o.FirstName,
-                               LastName = o.LastName,
-                               Username = o1.Username,
+                               FirstName = o1.FirstName,
+                               LastName = o1.LastName,
+                               Username = o.Username,
+                               Password = o.PasswordHash,
                                RoleName = o2.Name,
-                               Email = o.Email,
-                               PhoneNumber = o.PhoneNumber
+                               Email = o1.Email,
+                               PhoneNumber = o1.PhoneNumber,
+                               Photo = "https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=1200"
                            }).AsNoTracking().ToListAsync();
 
             return q;
@@ -114,6 +117,29 @@ namespace UserAuthJwt.Infrastructure.Services
             // Implement hash verification logic here
             // For simplicity, assuming the storedHash is the plain password in this example
             return password == storedHash;
+        }
+
+        public async Task DeleteUser(int userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            // Find the associated contact
+            var contact = await _context.Contacts.FirstOrDefaultAsync(c => c.Id == user.ContactId);
+            if (contact == null)
+            {
+                throw new Exception("Associated contact not found.");
+            }
+
+            // Remove the user and the associated contact
+            _context.Users.Remove(user);
+            _context.Contacts.Remove(contact);
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
         }
     }
 }

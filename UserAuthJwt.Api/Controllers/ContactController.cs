@@ -8,10 +8,10 @@ namespace UserAuthJwt.Api.Controllers
     [ApiController]
     public class ContactController : ControllerBase
     {
-        private readonly IContactService _contactService;
-        public ContactController(IContactService contactService)
+        private readonly IContactDapperService _contactDapperService;
+        public ContactController(IContactDapperService contactDapperService)
         {
-            _contactService = contactService;
+            _contactDapperService = contactDapperService;
         }
 
         [HttpGet("contacts")]
@@ -19,7 +19,7 @@ namespace UserAuthJwt.Api.Controllers
         {
             try
             {
-                var contacts = await _contactService.GetAllContacts();
+                var contacts = await _contactDapperService.GetAllContacts();
                 return Ok(contacts);
             }
             catch (Exception ex)

@@ -13,12 +13,12 @@ namespace UserAuthJwt.Api.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IUserDapperService _userDapperService;
         private readonly IConfiguration _config;
 
-        public UserController(IUserService userService, IConfiguration config)
+        public UserController(IUserDapperService userDapperService, IConfiguration config)
         {
-            _userService = userService;
+            _userDapperService = userDapperService;
             _config = config;
         }
 
@@ -27,7 +27,7 @@ namespace UserAuthJwt.Api.Controllers
         {
             try
             {
-                var contacts = await _userService.GetAllUsers();
+                var contacts = await _userDapperService.GetAllUsers();
                 return Ok(contacts);
             }
             catch (Exception ex)
@@ -39,7 +39,7 @@ namespace UserAuthJwt.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var user = await _userService.Authenticate(model.Username, model.Password);
+            var user = await _userDapperService.Authenticate(model.Username, model.Password);
 
             if (user == null)
                 return Unauthorized();
@@ -70,7 +70,7 @@ namespace UserAuthJwt.Api.Controllers
         {
             try
             {
-                var user = await _userService.Register(model);
+                var user = await _userDapperService.Register(model);
                 return Ok(user);
             }
             catch (Exception ex)
@@ -84,7 +84,7 @@ namespace UserAuthJwt.Api.Controllers
         {
             try
             {
-                await _userService.DeleteUser(userId);
+                await _userDapperService.DeleteUser(userId);
                 return Ok(new { message = "User and associated contact deleted successfully." });
             }
             catch (Exception ex)

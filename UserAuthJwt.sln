@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserAuthJwt.Application", "UserAuthJwt.Application\UserAuthJwt.Application.csproj", "{66F5CFE8-DD67-404B-B915-77F2C0C352DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserAuthJwt.Application", "UserAuthJwt.Application\UserAuthJwt.Application.csproj", "{66F5CFE8-DD67-404B-B915-77F2C0C352DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserAuthJwt.Api", "UserAuthJwt.Api\UserAuthJwt.Api.csproj", "{6273F88E-4B14-43DD-860C-3DC3DAB77735}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserAuthJwt.Api", "UserAuthJwt.Api\UserAuthJwt.Api.csproj", "{6273F88E-4B14-43DD-860C-3DC3DAB77735}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserAuthJwt.Domain", "UserAuthJwt.Domain\UserAuthJwt.Domain.csproj", "{C603FE2C-EE02-4408-84F1-CCC36C4A6715}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserAuthJwt.Domain", "UserAuthJwt.Domain\UserAuthJwt.Domain.csproj", "{C603FE2C-EE02-4408-84F1-CCC36C4A6715}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserAuthJwt.Infrastructure", "UserAuthJwt.Infrastructure\UserAuthJwt.Infrastructure.csproj", "{A5718E2A-BBEF-4E82-816D-47F00810B754}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserAuthJwt.Infrastructure", "UserAuthJwt.Infrastructure\UserAuthJwt.Infrastructure.csproj", "{03ABD1AE-4C7B-4910-B3D1-360D86F07B59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{C603FE2C-EE02-4408-84F1-CCC36C4A6715}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C603FE2C-EE02-4408-84F1-CCC36C4A6715}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C603FE2C-EE02-4408-84F1-CCC36C4A6715}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A5718E2A-BBEF-4E82-816D-47F00810B754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5718E2A-BBEF-4E82-816D-47F00810B754}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5718E2A-BBEF-4E82-816D-47F00810B754}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5718E2A-BBEF-4E82-816D-47F00810B754}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03ABD1AE-4C7B-4910-B3D1-360D86F07B59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03ABD1AE-4C7B-4910-B3D1-360D86F07B59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03ABD1AE-4C7B-4910-B3D1-360D86F07B59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03ABD1AE-4C7B-4910-B3D1-360D86F07B59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

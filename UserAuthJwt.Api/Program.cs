@@ -10,11 +10,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// Configure Entity Framework Core with MySQL
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySQL(connectionString));
+//// Configure Entity Framework Core with MySQL
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+//    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//    options.UseMySQL(connectionString));
+
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+//    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 36))));
+
+builder.Services.AddScoped<DapperDbContext>();
 
 builder.Services.AddControllers();
 
@@ -35,8 +42,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IContactService, ContactService>();
+//builder.Services.AddScoped<IUserService, UserService>();
+//builder.Services.AddScoped<IContactService, ContactService>();
+builder.Services.AddScoped<IContactDapperService, ContactDapperService>();
+builder.Services.AddScoped<IUserDapperService, UserDapperService>();
 
 builder.Services.AddCors(options =>
 {

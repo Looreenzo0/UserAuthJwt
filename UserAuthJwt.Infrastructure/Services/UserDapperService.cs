@@ -1,8 +1,6 @@
 ﻿
 using Dapper;
-using Microsoft.Extensions.Configuration;
-using MySqlConnector;
-using System.Data;
+using BCrypt.Net;
 using UserAuthJwt.Application.Dto;
 using UserAuthJwt.Application.Models;
 using UserAuthJwt.Domain.Entities;
@@ -30,16 +28,19 @@ namespace UserAuthJwt.Infrastructure.Services
             using (var connection = _dbContext.CreateConnection())
             {
                 const string sql = @"
-                    SELECT * 
-                    FROM Users 
-                    WHERE Username = @Username
-                ";
+            SELECT u.*, r.Name AS RoleName
+            FROM Users u
+            JOIN Roles r ON u.RoleId = r.Id
+            WHERE u.Username = @Username
+        ";
 
                 var user = await connection.QuerySingleOrDefaultAsync<User>(sql, new { Username = username });
 
+                // Return null if the user doesn't exist or password doesn't match
                 return user != null && VerifyPasswordHash(password, user.PasswordHash) ? user : null;
             }
         }
+
 
         public async Task<UserDto> Register(RegisterModel model)
         {
@@ -55,10 +56,10 @@ namespace UserAuthJwt.Infrastructure.Services
 
                 // Insert contact and get the new ID
                 const string insertContactSql = @"
-                    INSERT INTO Contacts (FirstName, LastName, Email, PhoneNumber)
-                    VALUES (@FirstName, @LastName, @Email, @PhoneNumber);
-                    SELECT LAST_INSERT_ID();
-                ";
+            INSERT INTO Contacts (FirstName, LastName, Email, PhoneNumber)
+            VALUES (@FirstName, @LastName, @Email, @PhoneNumber);
+            SELECT LAST_INSERT_ID();
+        ";
 
                 var contactId = await connection.ExecuteScalarAsync<int>(insertContactSql, new
                 {
@@ -77,30 +78,100 @@ namespace UserAuthJwt.Infrastructure.Services
                     throw new Exception("Role not found.");
                 }
 
+                // Hash the password using BCrypt
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
+
                 // Insert user and get the new ID
                 const string insertUserSql = @"
-                    INSERT INTO Users (Username, ContactId, PasswordHash, RoleId)
-                    VALUES (@Username, @ContactId, @PasswordHash, @RoleId);
-                    SELECT LAST_INSERT_ID();
-                ";
+            INSERT INTO Users (Username, ContactId, PasswordHash, RoleId, RoleName)
+            VALUES (@Username, @ContactId, @PasswordHash, @RoleId, @RoleName);
+            SELECT LAST_INSERT_ID();
+        ";
 
                 var userId = await connection.ExecuteScalarAsync<int>(insertUserSql, new
                 {
                     model.Username,
                     ContactId = contactId,
-                    PasswordHash = CreatePasswordHash(model.Password),
-                    RoleId = roleId.Value
+                    PasswordHash = hashedPassword,  // Save hashed password
+                    RoleId = roleId.Value,
+                    model.RoleName
                 });
 
-                return new UserDto
-                {
-                    Id = userId,
-                    Username = model.Username,
-                    ContactId = contactId,
-                    RoleId = roleId.Value
-                };
+                // Fetch the RoleName for the newly created user
+                const string getUserWithRoleSql = @"
+            SELECT u.Username, u.ContactId, u.RoleId, r.Name AS RoleName
+            FROM Users u
+            JOIN Roles r ON u.RoleId = r.Id
+            WHERE u.Id = @UserId
+        ";
+
+                var userDto = await connection.QuerySingleOrDefaultAsync<UserDto>(getUserWithRoleSql, new { UserId = userId });
+
+                return userDto;
             }
         }
+
+
+        //public async Task<UserDto> Register(RegisterModel model)
+        //{
+        //    using (var connection = _dbContext.CreateConnection())
+        //    {
+        //        // Check if username already exists
+        //        const string checkUserSql = "SELECT COUNT(1) FROM Users WHERE Username = @Username";
+        //        var userExists = await connection.ExecuteScalarAsync<bool>(checkUserSql, new { Username = model.Username });
+        //        if (userExists)
+        //        {
+        //            throw new Exception("Username already exists.");
+        //        }
+
+        //        // Insert contact and get the new ID
+        //        const string insertContactSql = @"
+        //            INSERT INTO Contacts (FirstName, LastName, Email, PhoneNumber)
+        //            VALUES (@FirstName, @LastName, @Email, @PhoneNumber);
+        //            SELECT LAST_INSERT_ID();
+        //        ";
+
+        //        var contactId = await connection.ExecuteScalarAsync<int>(insertContactSql, new
+        //        {
+        //            model.FirstName,
+        //            model.LastName,
+        //            model.Email,
+        //            model.PhoneNumber
+        //        });
+
+        //        // Get role ID
+        //        const string getRoleIdSql = "SELECT Id FROM Roles WHERE Name = @RoleName";
+        //        var roleId = await connection.ExecuteScalarAsync<int?>(getRoleIdSql, new { RoleName = model.RoleName });
+
+        //        if (roleId == null)
+        //        {
+        //            throw new Exception("Role not found.");
+        //        }
+
+        //        // Insert user and get the new ID
+        //        const string insertUserSql = @"
+        //            INSERT INTO Users (Username, ContactId, PasswordHash, RoleId)
+        //            VALUES (@Username, @ContactId, @PasswordHash, @RoleId);
+        //            SELECT LAST_INSERT_ID();
+        //        ";
+
+        //        var userId = await connection.ExecuteScalarAsync<int>(insertUserSql, new
+        //        {
+        //            model.Username,
+        //            ContactId = contactId,
+        //            PasswordHash = CreatePasswordHash(model.Password),
+        //            RoleId = roleId.Value
+        //        });
+
+        //        return new UserDto
+        //        {
+        //            Id = userId,
+        //            Username = model.Username,
+        //            ContactId = contactId,
+        //            RoleId = roleId.Value
+        //        };
+        //    }
+        //}
 
         public async Task<IEnumerable<ContactModel>> GetAllUsers()
         {
@@ -189,15 +260,13 @@ namespace UserAuthJwt.Infrastructure.Services
         }
         private string CreatePasswordHash(string password)
         {
-            // Implement a proper password hashing logic here (e.g., BCrypt)
-            return password; // For simplicity, storing the plain password here. Change this for production.
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
         private bool VerifyPasswordHash(string password, string storedHash)
         {
-            // Implement hash verification logic here
-            // For simplicity, assuming the storedHash is the plain password in this example
-            return password == storedHash;
+            return BCrypt.Net.BCrypt.Verify(password, storedHash);
         }
+
     }
 }

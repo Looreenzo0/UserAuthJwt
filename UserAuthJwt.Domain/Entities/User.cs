@@ -17,6 +17,7 @@ namespace UserAuthJwt.Domain.Entities
 
         // Add RoleId or Role navigation property
         public int RoleId { get; set; }
+        public string RoleName { get; set; }
         [JsonIgnore]
         public Role Role { get; set; } // Assuming Role entity exists
     }

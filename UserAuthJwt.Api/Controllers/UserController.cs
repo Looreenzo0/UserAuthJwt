@@ -36,22 +36,53 @@ namespace UserAuthJwt.Api.Controllers
             }
         }
 
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Login([FromBody] LoginModel model)
+        //{
+        //    var user = await _userDapperService.Authenticate(model.Username, model.Password);
+
+        //    if (user == null)
+        //        return Unauthorized(new { message = "Invalid username or password." });
+
+        //    var tokenHandler = new JwtSecurityTokenHandler();
+        //    var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
+
+        //    var tokenDescriptor = new SecurityTokenDescriptor
+        //    {
+        //        Subject = new ClaimsIdentity(new Claim[]
+        //        {
+        //    new Claim(ClaimTypes.Name, user.Username),
+        //    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+        //        }),
+        //        Expires = DateTime.UtcNow.AddHours(1),
+        //        Issuer = _config["Jwt:Issuer"],
+        //        Audience = _config["Jwt:Audience"],
+        //        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        //    };
+
+        //    var token = tokenHandler.CreateToken(tokenDescriptor);
+        //    var tokenString = tokenHandler.WriteToken(token);
+
+        //    return Ok(new { Token = tokenString });
+        //}
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             var user = await _userDapperService.Authenticate(model.Username, model.Password);
 
             if (user == null)
-                return Unauthorized();
+                return Unauthorized(new { message = "Invalid username or password." });
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Role, user.RoleName) // Add role claim
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 Issuer = _config["Jwt:Issuer"],
@@ -62,8 +93,15 @@ namespace UserAuthJwt.Api.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            return Ok(new { Token = tokenString });
+            // Return both token and role
+            return Ok(new
+            {
+                Token = tokenString,
+                Role = user.RoleName // Include the role in the response
+            });
         }
+
+
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)

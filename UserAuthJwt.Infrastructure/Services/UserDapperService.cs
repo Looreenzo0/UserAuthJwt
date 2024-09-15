@@ -111,68 +111,6 @@ namespace UserAuthJwt.Infrastructure.Services
             }
         }
 
-
-        //public async Task<UserDto> Register(RegisterModel model)
-        //{
-        //    using (var connection = _dbContext.CreateConnection())
-        //    {
-        //        // Check if username already exists
-        //        const string checkUserSql = "SELECT COUNT(1) FROM Users WHERE Username = @Username";
-        //        var userExists = await connection.ExecuteScalarAsync<bool>(checkUserSql, new { Username = model.Username });
-        //        if (userExists)
-        //        {
-        //            throw new Exception("Username already exists.");
-        //        }
-
-        //        // Insert contact and get the new ID
-        //        const string insertContactSql = @"
-        //            INSERT INTO Contacts (FirstName, LastName, Email, PhoneNumber)
-        //            VALUES (@FirstName, @LastName, @Email, @PhoneNumber);
-        //            SELECT LAST_INSERT_ID();
-        //        ";
-
-        //        var contactId = await connection.ExecuteScalarAsync<int>(insertContactSql, new
-        //        {
-        //            model.FirstName,
-        //            model.LastName,
-        //            model.Email,
-        //            model.PhoneNumber
-        //        });
-
-        //        // Get role ID
-        //        const string getRoleIdSql = "SELECT Id FROM Roles WHERE Name = @RoleName";
-        //        var roleId = await connection.ExecuteScalarAsync<int?>(getRoleIdSql, new { RoleName = model.RoleName });
-
-        //        if (roleId == null)
-        //        {
-        //            throw new Exception("Role not found.");
-        //        }
-
-        //        // Insert user and get the new ID
-        //        const string insertUserSql = @"
-        //            INSERT INTO Users (Username, ContactId, PasswordHash, RoleId)
-        //            VALUES (@Username, @ContactId, @PasswordHash, @RoleId);
-        //            SELECT LAST_INSERT_ID();
-        //        ";
-
-        //        var userId = await connection.ExecuteScalarAsync<int>(insertUserSql, new
-        //        {
-        //            model.Username,
-        //            ContactId = contactId,
-        //            PasswordHash = CreatePasswordHash(model.Password),
-        //            RoleId = roleId.Value
-        //        });
-
-        //        return new UserDto
-        //        {
-        //            Id = userId,
-        //            Username = model.Username,
-        //            ContactId = contactId,
-        //            RoleId = roleId.Value
-        //        };
-        //    }
-        //}
-
         public async Task<IEnumerable<ContactModel>> GetAllUsers()
         {
             const string sql = @"

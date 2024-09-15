@@ -53,7 +53,7 @@ CREATE TABLE `contacts` (
   `Email` longtext NOT NULL,
   `PhoneNumber` longtext NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -62,7 +62,7 @@ CREATE TABLE `contacts` (
 
 LOCK TABLES `contacts` WRITE;
 /*!40000 ALTER TABLE `contacts` DISABLE KEYS */;
-INSERT INTO `contacts` VALUES (7,'John Laurence','Resando','admin@gmail.com','09094355003'),(8,'Rhea','Resando','rhea@gmail.com','090324234'),(10,'Adelaida','Ecarma','adelaida@gmail.com','9958856727'),(11,'Dandoy','Ecarma','dandoy@gmail.com','9958856727'),(12,'asdfasdf','asdfasdf','rena@gmail.com','3242432'),(13,'sdfgsdfg','345345','dandoy@gmail.com','43534534'),(14,'asdfasdf','asdfasdf','johnresando5@gmail.com','asdfasdf');
+INSERT INTO `contacts` VALUES (40,'John','Resando','admin@gmail.com','09324234'),(41,'test','teest','test@gmail.com','3242423'),(57,'John Laurence','Resando','johnresando5@gmail.com','9958856727'),(58,'Rhea','Resando','rheaecarma@ymail.com','9958856727'),(60,'Hershey Lay','Gomez','hershey@gmail.com','9958856727'),(61,'Adelaida','Ecarma','rheaecarma@ymail.com','094234234243');
 /*!40000 ALTER TABLE `contacts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -77,7 +77,7 @@ CREATE TABLE `roles` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `Name` longtext NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -86,7 +86,7 @@ CREATE TABLE `roles` (
 
 LOCK TABLES `roles` WRITE;
 /*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-INSERT INTO `roles` VALUES (1,'Admin'),(2,'User');
+INSERT INTO `roles` VALUES (1,'admin'),(2,'teacher'),(3,'student'),(4,'parent');
 /*!40000 ALTER TABLE `roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -103,11 +103,12 @@ CREATE TABLE `users` (
   `Username` longtext NOT NULL,
   `PasswordHash` longtext NOT NULL,
   `RoleId` int NOT NULL DEFAULT '0',
+  `RoleName` varchar(45) NOT NULL,
   PRIMARY KEY (`Id`),
   KEY `IX_Users_ContactId` (`ContactId`),
   KEY `IX_Users_RoleId` (`RoleId`),
   CONSTRAINT `FK_Users_Contacts_ContactId` FOREIGN KEY (`ContactId`) REFERENCES `contacts` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -116,7 +117,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (5,7,'admin','admin123',1),(6,8,'admin1','admin123',2),(7,10,'user1','Adelaida',2),(8,11,'user2','asdfasdf',2),(9,12,'asdfasdf','asdfasdf',2),(10,13,'sdfg34345','345fdgdfgsdf',2),(11,14,'dfasd','asdfasdf2222',2);
+INSERT INTO `users` VALUES (52,57,'admin','$2a$11$26nve1zjYsiqWq5l09LHh.8tuNVfyybGySsNuPTDVjBDojJC8Pac2',1,'admin'),(53,58,'teacher','$2a$11$FVTKH8BHO6w0pG8H0IbWSutEyRbmVH0nJTHJu45XgECbsPM/Hgevm',2,'teacher'),(55,60,'student','$2a$11$C4sZyve6bciBWT748OU5RObKwzQRd2LgHoMC2fbVUszJQm63BoDBy',3,'student'),(56,61,'parent','$2a$11$A1cocHEvwMs.4NIrLjUGiuY/2P08AnRC/P3uVAgwjPhLAr.diIxoe',4,'parent');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -129,4 +130,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-11 23:19:18
+-- Dump completed on 2024-09-15 23:01:58

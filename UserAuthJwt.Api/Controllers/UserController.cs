@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -13,11 +15,13 @@ namespace UserAuthJwt.Api.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly ILogger<UserController> _logger;
         private readonly IUserDapperService _userDapperService;
         private readonly IConfiguration _config;
 
-        public UserController(IUserDapperService userDapperService, IConfiguration config)
+        public UserController(ILogger<UserController> logger, IUserDapperService userDapperService, IConfiguration config)
         {
+            _logger = logger;
             _userDapperService = userDapperService;
             _config = config;
         }
@@ -36,71 +40,65 @@ namespace UserAuthJwt.Api.Controllers
             }
         }
 
-        //[HttpPost("login")]
-        //public async Task<IActionResult> Login([FromBody] LoginModel model)
-        //{
-        //    var user = await _userDapperService.Authenticate(model.Username, model.Password);
-
-        //    if (user == null)
-        //        return Unauthorized(new { message = "Invalid username or password." });
-
-        //    var tokenHandler = new JwtSecurityTokenHandler();
-        //    var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
-
-        //    var tokenDescriptor = new SecurityTokenDescriptor
-        //    {
-        //        Subject = new ClaimsIdentity(new Claim[]
-        //        {
-        //    new Claim(ClaimTypes.Name, user.Username),
-        //    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-        //        }),
-        //        Expires = DateTime.UtcNow.AddHours(1),
-        //        Issuer = _config["Jwt:Issuer"],
-        //        Audience = _config["Jwt:Audience"],
-        //        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        //    };
-
-        //    var token = tokenHandler.CreateToken(tokenDescriptor);
-        //    var tokenString = tokenHandler.WriteToken(token);
-
-        //    return Ok(new { Token = tokenString });
-        //}
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var user = await _userDapperService.Authenticate(model.Username, model.Password);
-
-            if (user == null)
-                return Unauthorized(new { message = "Invalid username or password." });
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
+            try
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                // Authenticate the user
+                var user = await _userDapperService.Authenticate(model.Username, model.Password);
+
+                // If authentication fails, return unauthorized
+                if (user == null)
                 {
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Role, user.RoleName) // Add role claim
-                }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = _config["Jwt:Issuer"],
-                Audience = _config["Jwt:Audience"],
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
+                    return Unauthorized(new { message = "Invalid username or password." });
+                }
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
+                // Create JWT token handler
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
 
-            // Return both token and role
-            return Ok(new
+                // Define the token descriptor
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.RoleName) // Add role claim
+                    }),
+                    Expires = DateTime.UtcNow.AddHours(1),
+                    Issuer = _config["Jwt:Issuer"],
+                    Audience = _config["Jwt:Audience"],
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+
+                // Generate the token
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+
+                // Return both token and role in the response
+                return Ok(new
+                {
+                    Token = tokenString,
+                    Role = user.RoleName,
+                    Name = user.Username
+                });
+            }
+            catch (UnauthorizedAccessException)
             {
-                Token = tokenString,
-                Role = user.RoleName // Include the role in the response
-            });
-        }
+                // Handle specific authentication failure, for example
+                return Unauthorized(new { message = "Access denied." });
+            }
+            catch (Exception ex)
+            {
+                // Catch any unexpected errors and log them
+                // You might use a logger here to log the exception details
+                // _logger.LogError(ex, "An error occurred while processing the login request.");
 
+                return StatusCode(500, new { message = "An error occurred while processing your request.", details = ex.Message });
+            }
+        }
 
 
         [HttpPost("register")]
@@ -113,6 +111,7 @@ namespace UserAuthJwt.Api.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An unexpected error occurred during user registration.");
                 return BadRequest(new { message = ex.Message });
             }
         }
